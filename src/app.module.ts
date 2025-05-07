@@ -4,8 +4,7 @@ import { AppService } from './app.service';
 import {AuthModule} from "./auth/auth.module";
 import {DatabaseModule} from "./database/database.module";
 import {ConfigModule} from "@nestjs/config";
-import Joi from "@hapi/joi";
-
+import * as Joi from '@hapi/joi';
 @Module({
   imports: [
     ConfigModule.forRoot({
