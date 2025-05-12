@@ -32,9 +32,11 @@ export class UserService implements IUserService {
     }
 
     findAllUsersWithPagination(options: IPaginationOptions): Promise<User[]> {
+        const page = options.page ?? 1;
+        const pageSize = options.pageSize ?? 10;
         return this.userRepository.find({
-            skip: options.page * options.pageSize,
-            take: options.pageSize
+            skip: page * pageSize,
+            take: pageSize
         });
     }
 
