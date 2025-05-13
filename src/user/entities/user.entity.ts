@@ -27,12 +27,12 @@ export class User {
     public password: string;
 
     @IsString()
-    @Column()
+    @Column({ nullable: true })
     public username: string;
 
     @IsBoolean()
-    @Column({ default: false })
-    public is_admin: boolean;
+    @Column({ name: 'is_admin', default: false })
+    public isAdmin: boolean;
 
     @OneToMany(() => Score, score => score.user, {
         cascade: true,

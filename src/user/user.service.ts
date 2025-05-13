@@ -5,6 +5,7 @@ import {IPaginationOptions} from "../utils/types/pagination-options.type";
 import {EntityCondition} from "../utils/types/entity-condition.type";
 import {DeepPartial, Repository} from "typeorm";
 import {CreateUserDto} from "./dto/create-user.dto";
+import {NullableType} from "../utils/types/nullable.type";
 
 @Injectable()
 export class UserService implements IUserService {
@@ -40,7 +41,7 @@ export class UserService implements IUserService {
         });
     }
 
-    findOneUser(options: EntityCondition<User>): Promise<User> {
+    findOneUser(options: EntityCondition<User>): Promise<NullableType<User>> {
         return this.userRepository.findOne({ where: options });
     }
 
