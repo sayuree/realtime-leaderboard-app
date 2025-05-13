@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {Inject, Injectable} from "@nestjs/common";
 import {JwtService} from '@nestjs/jwt';
 import {LoginDto, VerifyDto} from "./dto/auth.dto";
 import {InjectRepository} from "@nestjs/typeorm";
@@ -13,12 +13,12 @@ import {ConfigService} from "@nestjs/config";
 import ms from "ms";
 import {TokenResponseType} from "./types/token-response.type";
 import {compareHash} from "../utils/hash-helpers";
+import {Services} from "../utils/constants";
 
 @Injectable()
 export class AuthService implements IAuthService {
     constructor(
-        @InjectRepository(User)
-        private readonly userService: IUserService,
+        @Inject(Services.USER) private readonly userService: IUserService,
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService
     ) {}
@@ -28,8 +28,8 @@ export class AuthService implements IAuthService {
         return await this.userService.createUser({...registerDto, otpCode });
     }
 
-    async verifyCode(verifyDto: VerifyDto) {
-        const [id, otpCode] = verifyDto;
+    async verifyCode(verifyDto: VerifyDto): Promise<string> {
+        const {id, otpCode} = verifyDto;
         const user = await this.userService.findOneUser({ id });
 
         if(this.verifyOTP(user, otpCode)) {
@@ -39,18 +39,18 @@ export class AuthService implements IAuthService {
     }
 
     async login(loginDto: LoginDto): Promise<LoginResponseType> {
-        const [email, password] = loginDto;
+        const {email, password} = loginDto;
         const existingUser = await this.userService.findOneUser({ email });
-        const isValidPassword = await compareHash(password, existingUser.password);
+        const isValidPassword = await compareHash(password, existingUser!.password);
 
         if(!isValidPassword) {
             throw new Error('Passwords dont match..');
         }
 
-        const payload = { id: existingUser.id };
+        const payload = { id: existingUser!.id };
         const tokenData = await this.generateTokens(payload);
 
-        return { user: existingUser, ...tokenData};
+        return { user: existingUser!, ...tokenData};
     }
 
 

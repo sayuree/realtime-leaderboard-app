@@ -6,10 +6,13 @@ import {EntityCondition} from "../utils/types/entity-condition.type";
 import {DeepPartial, Repository} from "typeorm";
 import {CreateUserDto} from "./dto/create-user.dto";
 import {NullableType} from "../utils/types/nullable.type";
+import {InjectRepository} from "@nestjs/typeorm";
 
 @Injectable()
 export class UserService implements IUserService {
-    constructor(private readonly userRepository: Repository<User>) {}
+    constructor(
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>) {}
 
     async createUser(createUserDto: CreateUserDto): Promise<User> {
         const existingUser = await this.userRepository.findOne({
