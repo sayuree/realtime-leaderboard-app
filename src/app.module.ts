@@ -7,12 +7,13 @@ import {ConfigModule} from "@nestjs/config";
 import * as Joi from '@hapi/joi';
 import {UserModule} from "./user/user.module";
 import authConfig from './config/auth.config';
+import otpConfig from "./config/otp.config";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig],
+      load: [authConfig, otpConfig],
       envFilePath: ['.env'],
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),

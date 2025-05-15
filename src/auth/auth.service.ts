@@ -1,7 +1,6 @@
 import {Inject, Injectable} from "@nestjs/common";
 import {JwtService} from '@nestjs/jwt';
 import {LoginDto, VerifyDto} from "./dto/auth.dto";
-import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "../user/entities/user.entity";
 import * as crypto from "crypto";
 import {IAuthService} from "./auth.interface";
@@ -23,9 +22,20 @@ export class AuthService implements IAuthService {
         private readonly configService: ConfigService
     ) {}
 
-    async register(registerDto: RegisterDto): Promise<User> {
+    async register(registerDto: RegisterDto): Promise<Partial<User>> {
         const otpCode = this.generateOTP();
-        return await this.userService.createUser({...registerDto, otpCode });
+        const otpExpiryMinutes
+            = this.configService.getOrThrow<string>('otp.otpExpiryMinutes');
+        const otpExpires = new Date(
+            Date.now() + Number(otpExpiryMinutes) * 60 * 1000
+        );
+        const newUser
+            = await this.userService.createUser({...registerDto, otpCode, otpExpires });
+        return {
+            id: newUser.id,
+            email: newUser.email,
+            createdAt: newUser.createdAt
+        }
     }
 
     async verifyCode(verifyDto: VerifyDto): Promise<string> {

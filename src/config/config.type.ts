@@ -4,3 +4,7 @@ export type AuthConfig = {
     refreshSecret?: string;
     refreshExpiresIn?: string;
 }
+
+export type OtpConfig = {
+    otpExpiryMinutes?: string;
+}

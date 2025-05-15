@@ -4,6 +4,7 @@ import {User} from "../user/entities/user.entity";
 import {RegisterDto} from "./dto/register.dto";
 import {IAuthService} from "./auth.interface";
 import {Services} from "../utils/constants";
+import {RegisterResponseType} from "./types/register-response.type";
 
 @Controller('auth')
 export class AuthController {
@@ -12,9 +13,13 @@ export class AuthController {
 
     @Post('/register')
     @HttpCode(HttpStatus.CREATED)
-    async register(@Body() registerDto: RegisterDto): Promise<User> {
+    async register(@Body() registerDto: RegisterDto): Promise<RegisterResponseType> {
         const createdUser = await this.authService.register(registerDto);
-        return createdUser;
+        return {
+            statusCode: 201,
+            message: 'User is successfully registered',
+            data: createdUser
+        };
     }
 
     @Post('/verify')

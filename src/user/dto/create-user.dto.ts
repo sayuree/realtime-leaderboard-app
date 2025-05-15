@@ -23,4 +23,7 @@ export class CreateUserDto {
 
     @MinLength(6)
     otpCode: string;
+
+    @IsString()
+    otpExpires: Date;
 }
