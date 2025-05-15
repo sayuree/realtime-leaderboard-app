@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable, NotFoundException} from '@nestjs/common';
 import {User} from "./entities/user.entity";
 import {IUserService} from "./user.interface";
 import {IPaginationOptions} from "../utils/types/pagination-options.type";
@@ -19,7 +19,7 @@ export class UserService implements IUserService {
             where: { email: createUserDto.email }
         });
         if(existingUser) {
-            throw new Error("User already exists..");
+            throw new HttpException("User already exists", HttpStatus.CONFLICT);
         }
         const newUser = this.userRepository.create(createUserDto);
         return this.userRepository.save(newUser);
@@ -30,7 +30,7 @@ export class UserService implements IUserService {
             where: {id: id}
         });
         if (!existingUser) {
-            throw new Error("User doesn't exist..");
+            throw new NotFoundException(`User with id: ${id} doesn't exist`);
         }
         await this.userRepository.softDelete(id);
     }
