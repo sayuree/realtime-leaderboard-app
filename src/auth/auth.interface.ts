@@ -7,5 +7,5 @@ import {RegisterResponseType} from "./types/register-response.type";
 export interface IAuthService {
     register(registerDto: RegisterDto): Promise<Partial<User>>;
     login(loginDto: LoginDto): Promise<LoginResponseType>;
-    verifyCode(verifyDto: VerifyDto): Promise<string>;
+    verifyCode(verifyDto: VerifyDto): Promise<void>;
 }

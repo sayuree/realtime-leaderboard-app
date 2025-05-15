@@ -5,6 +5,7 @@ import {RegisterDto} from "./dto/register.dto";
 import {IAuthService} from "./auth.interface";
 import {Services} from "../utils/constants";
 import {RegisterResponseType} from "./types/register-response.type";
+import {VerifyResponseType} from "./types/verify-response.type";
 
 @Controller('auth')
 export class AuthController {
@@ -24,8 +25,12 @@ export class AuthController {
 
     @Post('/verify')
     @HttpCode(HttpStatus.OK)
-    async verify(@Body() verifyDto: VerifyDto): Promise<string> {
-        return this.authService.verifyCode(verifyDto)
+    async verify(@Body() verifyDto: VerifyDto): Promise<VerifyResponseType> {
+        this.authService.verifyCode(verifyDto)
+        return {
+            message: 'User is successfully verified',
+            verified: true
+        }
     }
 
 

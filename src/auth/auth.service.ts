@@ -1,4 +1,4 @@
-import {Inject, Injectable} from "@nestjs/common";
+import {ConflictException, GoneException, Inject, Injectable, UnauthorizedException} from "@nestjs/common";
 import {JwtService} from '@nestjs/jwt';
 import {LoginDto, VerifyDto} from "./dto/auth.dto";
 import {User} from "../user/entities/user.entity";
@@ -38,14 +38,16 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async verifyCode(verifyDto: VerifyDto): Promise<string> {
+    async verifyCode(verifyDto: VerifyDto): Promise<void> {
         const {id, otpCode} = verifyDto;
         const user = await this.userService.findOneUser({ id });
 
-        if(this.verifyOTP(user, otpCode)) {
-            return 'User is verified';
+        if(user?.verified) {
+            throw new ConflictException('User is already verified');
         }
-        return 'Verification is failed. Please retry';
+
+        this.verifyOTP(user, otpCode);
+        //TODO: update user as verified
     }
 
     async login(loginDto: LoginDto): Promise<LoginResponseType> {
@@ -54,7 +56,7 @@ export class AuthService implements IAuthService {
         const isValidPassword = await compareHash(password, existingUser!.password);
 
         if(!isValidPassword) {
-            throw new Error('Passwords dont match..');
+            throw new UnauthorizedException('Invalid credentials');
         }
 
         const payload = { id: existingUser!.id };
@@ -66,7 +68,7 @@ export class AuthService implements IAuthService {
 
 
     async logout() {
-
+        //TODO: finish logout service
     }
 
     private generateOTP(): string {
@@ -81,12 +83,12 @@ export class AuthService implements IAuthService {
     private async generateTokens(payload: TokenPayloadType): Promise<TokenResponseType> {
         const accessTokenExpiresIn
             = this.configService.getOrThrow<string>('auth.expiresIn');
-        // const accessTokenExpires = Date.now() + ms(accessTokenExpiresIn);
+        const accessTokenExpires = Date.now() + ms(accessTokenExpiresIn);
 
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(payload, {
                 secret: this.configService.getOrThrow<string>('auth.secret'),
-                expiresIn: accessTokenExpiresIn
+                expiresIn: accessTokenExpires
             }),
             this.jwtService.signAsync(payload, {
                 secret: this.configService.getOrThrow<string>('auth.refreshSecret'),
@@ -101,14 +103,16 @@ export class AuthService implements IAuthService {
         }
     }
 
-    private verifyOTP(user: User | null, verifyCode: string): boolean {
-        if(!user || !user.otpCode || !user.otpExpires || user.otpExpires < new Date()) {
-            throw new Error('OTP code is not generated or expired');
+    private verifyOTP(user: User | null, verifyCode: string): void {
+        if(!user?.otpCode) {
+            throw new GoneException('No OTP exists for this user');
+        }
+        if(!user.otpExpires || user.otpExpires < new Date()) {
+            throw new GoneException('OTP has expired. Please request a new one');
         }
 
         if(user.otpCode !== verifyCode) {
-            return false;
+            throw new UnauthorizedException('Invalid OTP code');
         }
-        return true;
     }
 }
