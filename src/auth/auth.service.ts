@@ -13,6 +13,7 @@ import ms from "ms";
 import {TokenResponseType} from "./types/token-response.type";
 import {compareHash} from "../utils/hash-helpers";
 import {Services} from "../utils/constants";
+import * as crypto from "crypto";
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -47,7 +48,7 @@ export class AuthService implements IAuthService {
         }
 
         this.verifyOTP(user, otpCode);
-        //TODO: update user as verified
+        await this.userService.updateUser(id, { verified: true });
     }
 
     async login(loginDto: LoginDto): Promise<LoginResponseType> {
@@ -114,5 +115,17 @@ export class AuthService implements IAuthService {
         if(user.otpCode !== verifyCode) {
             throw new UnauthorizedException('Invalid OTP code');
         }
+    }
+
+    forgotPassword(email: string): Promise<void> {
+        return Promise.resolve(undefined);
+    }
+
+    refreshToken(): Promise<void> {
+        return Promise.resolve(undefined);
+    }
+
+    resetPassword(): Promise<void> {
+        return Promise.resolve(undefined);
     }
 }

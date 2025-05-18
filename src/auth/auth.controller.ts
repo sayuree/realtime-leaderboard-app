@@ -26,7 +26,7 @@ export class AuthController {
     @Post('/verify')
     @HttpCode(HttpStatus.OK)
     async verify(@Body() verifyDto: VerifyDto): Promise<VerifyResponseType> {
-        this.authService.verifyCode(verifyDto)
+        await this.authService.verifyCode(verifyDto)
         return {
             message: 'User is successfully verified',
             verified: true

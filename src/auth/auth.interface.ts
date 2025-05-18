@@ -8,4 +8,8 @@ export interface IAuthService {
     register(registerDto: RegisterDto): Promise<Partial<User>>;
     login(loginDto: LoginDto): Promise<LoginResponseType>;
     verifyCode(verifyDto: VerifyDto): Promise<void>;
+    forgotPassword(email: string): Promise<void>;
+    resetPassword(): Promise<void>;
+    refreshToken(): Promise<void>;
+    logout(): Promise<void>;
 }
