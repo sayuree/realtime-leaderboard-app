@@ -1,4 +1,5 @@
 export enum Services {
     AUTH = 'auth',
-    USER = 'user'
+    USER = 'user',
+    MAILER = 'mailer'
 }
